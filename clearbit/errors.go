@@ -5,11 +5,12 @@ import (
 	"fmt"
 )
 
-// apiError represents a Clearbit API Error response
+// ApiError represents a Clearbit API Error response
 // https://clearbit.com/docs#errors
-type apiError struct {
+type ApiError struct {
 	Errors []ErrorDetail `json:"error"`
 }
+type apiError = ApiError
 
 // ErrorDetail represents an individual item in an apiError.
 type ErrorDetail struct {
@@ -23,7 +24,7 @@ type ErrorDetailWrapper struct {
 }
 
 // ErrorDetail represents an individual item in an apiError.
-func (e apiError) Error() string {
+func (e ApiError) Error() string {
 	if len(e.Errors) > 0 {
 		err := e.Errors[0]
 		return fmt.Sprintf("clearbit: %s %v", err.Type, err.Message)
@@ -35,7 +36,7 @@ func (e apiError) Error() string {
 //
 // This is because sometimes our errors are not arrays of ErrorDetail but a
 // single ErrorDetail
-func (e *apiError) UnmarshalJSON(b []byte) (err error) {
+func (e *ApiError) UnmarshalJSON(b []byte) (err error) {
 	errorDetail, errors := ErrorDetailWrapper{}, []ErrorDetail{}
 	if err = json.Unmarshal(b, &errors); err == nil {
 		e.Errors = errors
@@ -53,7 +54,7 @@ func (e *apiError) UnmarshalJSON(b []byte) (err error) {
 
 // Empty returns true if empty. Otherwise, at least 1 error message/code is
 // present and false is returned.
-func (e *apiError) Empty() bool {
+func (e *ApiError) Empty() bool {
 	if len(e.Errors) == 0 {
 		return true
 	}
